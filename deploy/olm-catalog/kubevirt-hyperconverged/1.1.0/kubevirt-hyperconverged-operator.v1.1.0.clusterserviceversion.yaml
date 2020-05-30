@@ -9,7 +9,7 @@ metadata:
     categories: OpenShift Optional
     certified: "false"
     containerImage: quay.io/kubevirt/hyperconverged-cluster-operator:1.1.0
-    createdAt: "2020-05-27 05:07:37"
+    createdAt: "2020-05-30 05:06:18"
     description: |-
       **HyperConverged Cluster Operator** is an Operator pattern for managing multi-operator products.
       Specifcally, the HyperConverged Cluster Operator manages the deployment of KubeVirt,
@@ -136,7 +136,8 @@ spec:
       kind: CDI
       name: cdis.cdi.kubevirt.io
       version: v1alpha1
-    - kind: NodeMaintenance
+    - description: NodeMaintenance is the Schema for the nodemaintenances API kubebuilder:subresource:status
+      kind: NodeMaintenance
       name: nodemaintenances.nodemaintenance.kubevirt.io
       version: v1beta1
     - description: Represents a HostPathProvisioner deployment
@@ -1704,13 +1705,16 @@ spec:
               containers:
               - env:
                 - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: node-maintenance-operator
-                image: quay.io/kubevirt/node-maintenance-operator:v0.5.0
+                image: quay.io/kubevirt/node-maintenance-operator:v0.6.0
                 imagePullPolicy: Always
                 name: node-maintenance-operator
                 resources: {}

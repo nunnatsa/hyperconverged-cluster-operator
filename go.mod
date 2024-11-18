@@ -205,3 +205,5 @@ replace gopkg.in/yaml.v3 => gopkg.in/yaml.v3 v3.0.1
 
 // FIX: CVE-2023-45288
 replace golang.org/x/net => golang.org/x/net v0.23.0
+
+replace github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20241107164952-923091dd2b1a

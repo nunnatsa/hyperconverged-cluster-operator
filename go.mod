@@ -33,7 +33,7 @@ require (
 	golang.org/x/mod v0.20.0
 	golang.org/x/sync v0.10.0
 	golang.org/x/tools v0.24.0
-	gomodules.xyz/jsonpatch/v2 v2.4.0
+	gomodules.xyz/jsonpatch/v2/v3 v3.0.1
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.31.0
 	k8s.io/apiextensions-apiserver v0.31.0
@@ -182,7 +182,7 @@ replace (
 )
 
 replace (
-	github.com/appscode/jsonpatch => github.com/appscode/jsonpatch v1.0.1
+	github.com/appscode/jsonpatch/v3 => github.com/appscode/jsonpatch v3.0.1
 	github.com/go-kit/kit => github.com/go-kit/kit v0.12.0
 	github.com/openshift/machine-api-operator => github.com/openshift/machine-api-operator v0.2.1-0.20230329185430-d3973b45c2b6
 )

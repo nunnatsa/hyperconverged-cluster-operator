@@ -2,53 +2,53 @@ module github.com/kubevirt/hyperconverged-cluster-operator
 
 go 1.23.2
 
-toolchain go1.23.5
+toolchain go1.24.1
 
 require (
 	dario.cat/mergo v1.0.1
 	github.com/blang/semver/v4 v4.0.0
-	github.com/evanphx/json-patch/v5 v5.9.0
+	github.com/evanphx/json-patch/v5 v5.9.11
 	github.com/gertd/go-pluralize v0.2.1
-	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
+	github.com/ghodss/yaml d8423dcdf344
 	github.com/go-logr/logr v1.4.2
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/kubevirt/cluster-network-addons-operator v0.98.1
-	github.com/kubevirt/monitoring/pkg/metrics/parser v0.0.0-20240505100225-e29dee0bb12b
-	github.com/machadovilaca/operator-observability v0.0.24
-	github.com/onsi/ginkgo/v2 v2.20.2
-	github.com/onsi/gomega v1.34.2
-	github.com/openshift/api v3.9.1-0.20190517100836-d5b34b957e91+incompatible
-	github.com/openshift/cluster-kube-descheduler-operator v0.0.0-20240916113608-1a30f3be33fa
+	github.com/kubevirt/monitoring/pkg/metrics/parser 234f65f07646
+	github.com/machadovilaca/operator-observability v0.0.26
+	github.com/onsi/ginkgo/v2 v2.23.0
+	github.com/onsi/gomega v1.36.2
+	github.com/openshift/api 8a7efbfb5316
+	github.com/openshift/cluster-kube-descheduler-operator 7c82e14b9b16
 	github.com/openshift/custom-resource-status v1.1.2
-	github.com/openshift/library-go v0.0.0-20240830130947-d9523164b328
-	github.com/operator-framework/api v0.27.0
-	github.com/operator-framework/operator-lib v0.15.0
-	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.76.0
-	github.com/prometheus/client_golang v1.20.2
+	github.com/openshift/library-go f5f4fccb26ff
+	github.com/operator-framework/api v0.30.0
+	github.com/operator-framework/operator-lib v0.17.0
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.81.0
+	github.com/prometheus/client_golang v1.21.1
 	github.com/prometheus/client_model v0.6.1
-	github.com/prometheus/common v0.57.0
-	github.com/samber/lo v1.47.0
-	github.com/spf13/pflag v1.0.5
-	golang.org/x/mod v0.20.0
-	golang.org/x/sync v0.10.0
-	golang.org/x/tools v0.24.0
-	gomodules.xyz/jsonpatch/v2 v2.4.0
+	github.com/prometheus/common v0.63.0
+	github.com/samber/lo v1.49.1
+	github.com/spf13/pflag v1.0.6
+	golang.org/x/mod v0.24.0
+	golang.org/x/sync v0.12.0
+	golang.org/x/tools v0.31.0
+	gomodules.xyz/jsonpatch/v2 v2.5.0
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.31.0
-	k8s.io/apiextensions-apiserver v0.31.0
-	k8s.io/apimachinery v0.31.0
-	k8s.io/apiserver v0.31.0
+	k8s.io/api v0.32.3
+	k8s.io/apiextensions-apiserver v0.32.3
+	k8s.io/apimachinery v0.32.3
+	k8s.io/apiserver v0.32.3
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.31.0
-	k8s.io/utils v0.0.0-20240821151609-f90d01438635
+	k8s.io/utils 24370beab758
 	kubevirt.io/api v1.5.0
 	kubevirt.io/application-aware-quota v1.4.0
 	kubevirt.io/containerized-data-importer-api v1.61.2
 	kubevirt.io/controller-lifecycle-operator-sdk/api v0.2.4
 	kubevirt.io/ssp-operator/api v0.22.3
-	sigs.k8s.io/controller-runtime v0.19.3
-	sigs.k8s.io/controller-tools v0.16.2
+	sigs.k8s.io/controller-runtime v0.20.3
+	sigs.k8s.io/controller-tools v0.17.2
 )
 
 require (
@@ -154,56 +154,56 @@ exclude k8s.io/sample-apiserver v0.0.0
 
 // Pinned to v0.31.0
 replace (
-	k8s.io/api => k8s.io/api v0.31.0
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.31.0
-	k8s.io/apimachinery => k8s.io/apimachinery v0.31.0
-	k8s.io/apiserver => k8s.io/apiserver v0.31.0
-	k8s.io/cli-runtime => k8s.io/cli-runtime v0.31.0
-	k8s.io/client-go => k8s.io/client-go v0.31.0
-	k8s.io/cloud-provider => k8s.io/cloud-provider v0.31.0
-	k8s.io/cluster-bootstrap => k8s.io/cluster-bootstrap v0.31.0
-	k8s.io/code-generator => k8s.io/code-generator v0.31.0
-	k8s.io/component-base => k8s.io/component-base v0.31.0
-	k8s.io/cri-api => k8s.io/cri-api v0.31.0
-	k8s.io/csi-translation-lib => k8s.io/csi-translation-lib v0.31.0
-	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.31.0
-	k8s.io/kube-controller-manager => k8s.io/kube-controller-manager v0.31.0
-	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20240827152857-f7e401e7b4c2
-	k8s.io/kube-proxy => k8s.io/kube-proxy v0.31.0
-	k8s.io/kube-scheduler => k8s.io/kube-scheduler v0.31.0
-	k8s.io/kubectl => k8s.io/kubectl v0.31.0
-	k8s.io/kubelet => k8s.io/kubelet v0.31.0
+	k8s.io/api => k8s.io/api v0.32.3
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.32.3
+	k8s.io/apimachinery => k8s.io/apimachinery v0.32.3
+	k8s.io/apiserver => k8s.io/apiserver v0.32.3
+	k8s.io/cli-runtime => k8s.io/cli-runtime v0.32.3
+	k8s.io/client-go => k8s.io/client-go v0.32.3
+	k8s.io/cloud-provider => k8s.io/cloud-provider v0.32.3
+	k8s.io/cluster-bootstrap => k8s.io/cluster-bootstrap v0.32.3
+	k8s.io/code-generator => k8s.io/code-generator v0.32.3
+	k8s.io/component-base => k8s.io/component-base v0.32.3
+	k8s.io/cri-api => k8s.io/cri-api v0.32.3
+	k8s.io/csi-translation-lib => k8s.io/csi-translation-lib v0.32.3
+	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.32.3
+	k8s.io/kube-controller-manager => k8s.io/kube-controller-manager v0.32.3
+	k8s.io/kube-openapi => k8s.io/kube-openapi c8a335a9a2ff
+	k8s.io/kube-proxy => k8s.io/kube-proxy v0.32.3
+	k8s.io/kube-scheduler => k8s.io/kube-scheduler v0.32.3
+	k8s.io/kubectl => k8s.io/kubectl v0.32.3
+	k8s.io/kubelet => k8s.io/kubelet v0.32.3
 	k8s.io/legacy-cloud-providers => k8s.io/legacy-cloud-providers v0.31.0
-	k8s.io/metrics => k8s.io/metrics v0.31.0
+	k8s.io/metrics => k8s.io/metrics v0.32.3
 	k8s.io/node-api => k8s.io/node-api v0.31.0
-	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.31.0
-	k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.31.0
-	k8s.io/sample-controller => k8s.io/sample-controller v0.31.0
+	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.32.3
+	k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.32.3
+	k8s.io/sample-controller => k8s.io/sample-controller v0.32.3
 )
 
 replace (
 	github.com/appscode/jsonpatch => github.com/appscode/jsonpatch v1.0.1
-	github.com/go-kit/kit => github.com/go-kit/kit v0.12.0
-	github.com/openshift/machine-api-operator => github.com/openshift/machine-api-operator v0.2.1-0.20230329185430-d3973b45c2b6
+	github.com/go-kit/kit => github.com/go-kit/kit v0.13.0
+	github.com/openshift/machine-api-operator => github.com/openshift/machine-api-operator e4bd10f78bad
 )
 
-replace sigs.k8s.io/structured-merge-diff/v4 => sigs.k8s.io/structured-merge-diff/v4 v4.4.1
+replace sigs.k8s.io/structured-merge-diff/v4 => sigs.k8s.io/structured-merge-diff/v4 v4.6.0
 
-replace vbom.ml/util => github.com/fvbommel/util v0.0.0-20180919145318-efcd4e0f9787
+replace vbom.ml/util => github.com/fvbommel/util v0.0.3
 
-replace bitbucket.org/ww/goautoneg => github.com/munnerz/goautoneg v0.0.0-20120707110453-a547fc61f48d
+replace bitbucket.org/ww/goautoneg => github.com/munnerz/goautoneg a7dc8b61c822
 
-replace github.com/openshift/api => github.com/openshift/api v0.0.0-20230503133300-8bbcb7ca7183
+replace github.com/openshift/api => github.com/openshift/api 8a7efbfb5316
 
 // Fixes various security issues forcing newer versions of affected dependencies,
 // prune the list once not explicitly required
 replace (
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/gorilla/websocket => github.com/gorilla/websocket v1.5.0
+	github.com/gorilla/websocket => github.com/gorilla/websocket v1.5.3
 )
 
 // FIX: Unhandled exception in gopkg.in/yaml.v3
 replace gopkg.in/yaml.v3 => gopkg.in/yaml.v3 v3.0.1
 
 // Fix CVE-2024-45338
-replace golang.org/x/net => golang.org/x/net v0.34.0
+replace golang.org/x/net => golang.org/x/net v0.37.0

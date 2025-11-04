@@ -48,7 +48,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to selected (by name) CRDs
-	// look only at descheduler CRD for now
+	// look at descheduler and perses CRDs
 	err = c.Watch(
 		source.Kind(
 			mgr.GetCache(), client.Object(&apiextensionsv1.CustomResourceDefinition{}),
@@ -56,6 +56,10 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 			predicate.NewPredicateFuncs(func(object client.Object) bool {
 				switch object.GetName() {
 				case hcoutil.DeschedulerCRDName:
+					return true
+				case "persesdashboards.perses.dev":
+					return true
+				case "persesdatasources.perses.dev":
 					return true
 				}
 				return false
@@ -97,6 +101,13 @@ func (r *ReconcileCRD) Reconcile(ctx context.Context, req reconcile.Request) (re
 			r.eventEmitter.EmitEvent(nil, corev1.EventTypeNormal, "KubeDescheduler CRD got deployed, restarting the operator to reconfigure the operator for the new kind", "Restarting the operator to be able to read KubeDescheduler CRs ")
 			r.operatorRestart()
 		}
+	}
+
+	// If Perses CRDs are now available, restart to register Perses controller and cache the new GVKs.
+	if hcoutil.IsPersesAvailable(ctx, r.client) {
+		log.Info("Perses CRDs detected, restarting the operator to register the Perses controller")
+		r.eventEmitter.EmitEvent(nil, corev1.EventTypeNormal, "Perses CRDs detected", "Restarting the operator to register the Perses controller")
+		r.operatorRestart()
 	}
 
 	return reconcile.Result{}, nil

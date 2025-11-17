@@ -14,6 +14,7 @@ import (
 	conditionsv1 "github.com/openshift/custom-resource-status/conditions/v1"
 	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	operatorsapiv2 "github.com/operator-framework/api/pkg/operators/v2"
+	operatorcontv1 "github.com/operator-framework/operator-controller/api/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -138,10 +139,11 @@ type BasicExpected struct {
 	consolePlugin        *consolev1.ConsolePlugin
 	consoleConfig        *operatorv1.Console
 	csv                  *csvv1alpha1.ClusterServiceVersion
+	clusterExtension     *operatorcontv1.ClusterExtension
 }
 
 func (be BasicExpected) toArray() []client.Object {
-	return []client.Object{
+	arr := []client.Object{
 		be.namespace,
 		be.hco,
 		be.pc,
@@ -164,8 +166,17 @@ func (be BasicExpected) toArray() []client.Object {
 		be.consoleProxySvc,
 		be.consolePlugin,
 		be.consoleConfig,
-		be.csv,
 	}
+
+	if be.csv != nil {
+		arr = append(arr, be.csv)
+	}
+
+	if be.clusterExtension != nil {
+		arr = append(arr, be.clusterExtension)
+	}
+
+	return arr
 }
 
 func (be BasicExpected) initClient() *commontestutils.HcoTestClient {
@@ -312,8 +323,14 @@ func getBasicDeployment() *BasicExpected {
 	}
 	res.hcoCRD = hcoCrd
 
-	csv := hcoutil.GetClusterInfo().GetCSV()
-	res.csv = csv
+	manageObject := hcoutil.GetClusterInfo().GetManageObject()
+
+	switch obj := manageObject.(type) {
+	case *csvv1alpha1.ClusterServiceVersion:
+		res.csv = obj
+	case *operatorcontv1.ClusterExtension:
+		res.clusterExtension = obj
+	}
 
 	return res
 }

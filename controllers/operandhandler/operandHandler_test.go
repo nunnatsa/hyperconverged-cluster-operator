@@ -66,7 +66,7 @@ var _ = Describe("Test operandHandler", func() {
 		It("should create all objects are created", func() {
 			hco := commontestutils.NewHco()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			eventEmitter := commontestutils.NewEventEmitterMock()
 
@@ -203,7 +203,7 @@ var _ = Describe("Test operandHandler", func() {
 		It("make sure the all objects are deleted", func() {
 			hco := commontestutils.NewHco()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			eventEmitter := commontestutils.NewEventEmitterMock()
 
@@ -291,7 +291,7 @@ var _ = Describe("Test operandHandler", func() {
 		It("delete KV error handling", func() {
 			hco := commontestutils.NewHco()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			eventEmitter := commontestutils.NewEventEmitterMock()
 
@@ -340,7 +340,7 @@ var _ = Describe("Test operandHandler", func() {
 		It("delete CDI error handling", func() {
 			hco := commontestutils.NewHco()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			eventEmitter := commontestutils.NewEventEmitterMock()
 
@@ -390,7 +390,7 @@ var _ = Describe("Test operandHandler", func() {
 		It("default delete error handling", func() {
 			hco := commontestutils.NewHco()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			fakeError := fmt.Errorf("fake CNA deletion error")
 			eventEmitter := commontestutils.NewEventEmitterMock()
@@ -440,7 +440,7 @@ var _ = Describe("Test operandHandler", func() {
 		It("delete timeout error handling", func() {
 			hco := commontestutils.NewHco()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			eventEmitter := commontestutils.NewEventEmitterMock()
 
@@ -488,7 +488,7 @@ var _ = Describe("Test operandHandler", func() {
 			hco.Spec.EnableCommonBootImageImport = ptr.To(true)
 			eventEmitter := commontestutils.NewEventEmitterMock()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			handler := NewOperandHandler(cli, commontestutils.GetScheme(), ci, eventEmitter)
 			handler.FirstUseInitiation(commontestutils.GetScheme(), ci, hco, pwdFS)
@@ -541,7 +541,7 @@ var _ = Describe("Test operandHandler", func() {
 			hcoNamespace := commontestutils.NewHcoNamespace()
 			hco := commontestutils.NewHco()
 			ci := commontestutils.ClusterInfoMock{}
-			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+			cli := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 
 			eventEmitter := commontestutils.NewEventEmitterMock()
 

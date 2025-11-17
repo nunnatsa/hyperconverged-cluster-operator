@@ -1094,7 +1094,7 @@ func (r *ReconcileHyperConverged) firstLoopInitialization(request *common.HcoReq
 }
 
 func (r *ReconcileHyperConverged) setOperatorUpgradeableStatus(request *common.HcoRequest) error {
-	if hcoutil.GetClusterInfo().IsManagedByOLM() {
+	if hcoutil.GetClusterInfo().IsManagedByOLMV0() {
 
 		upgradeable := !r.upgradeMode && request.Upgradeable
 

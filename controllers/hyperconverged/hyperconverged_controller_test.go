@@ -17,6 +17,7 @@ import (
 	imagev1 "github.com/openshift/api/image/v1"
 	conditionsv1 "github.com/openshift/custom-resource-status/conditions/v1"
 	objectreferencesv1 "github.com/openshift/custom-resource-status/objectreferences/v1"
+	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -153,7 +154,7 @@ var _ = Describe("HyperconvergedController", func() {
 				}
 
 				ci := hcoutil.GetClusterInfo()
-				cl := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetCSV()})
+				cl := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
 				monitoringReconciler := alerts.NewMonitoringReconciler(ci, cl, commontestutils.NewEventEmitterMock(), commontestutils.GetScheme())
 
 				r := initReconciler(cl, nil)
@@ -971,14 +972,13 @@ var _ = Describe("HyperconvergedController", func() {
 
 		Context("APIServer CR", func() {
 
-			externalClusterInfo := hcoutil.GetClusterInfo
-
 			BeforeEach(func() {
+				externalClusterInfo := hcoutil.GetClusterInfo
 				hcoutil.GetClusterInfo = getClusterInfo
-			})
 
-			AfterEach(func() {
-				hcoutil.GetClusterInfo = externalClusterInfo
+				DeferCleanup(func() {
+					hcoutil.GetClusterInfo = externalClusterInfo
+				})
 			})
 
 			It("Should refresh cached APIServer if the reconciliation is caused by a change there", func() {
@@ -1057,7 +1057,10 @@ var _ = Describe("HyperconvergedController", func() {
 				expected := getBasicDeployment()
 				Expect(expected.hco.Spec.TLSSecurityProfile).To(BeNil())
 
-				expected.csv = commontestutils.ClusterInfoMock{}.GetCSV()
+				var ok bool
+				expected.csv, ok = commontestutils.ClusterInfoMock{}.GetManageObject().(*csvv1alpha1.ClusterServiceVersion)
+				Expect(ok).To(BeTrue())
+
 				resources := expected.toArray()
 				resources = append(resources, clusterVersion, infrastructure, ingress, apiServer, dns, ipv4network)
 				cl := commontestutils.InitClient(resources)

@@ -49,7 +49,7 @@ func NewOperatorCondition(clusterInfo ClusterInfo, cl client.Client, condType st
 		// because operator-lib can't discover the namespace we are running in.
 		return oc, nil
 	}
-	if !clusterInfo.IsManagedByOLM() {
+	if !clusterInfo.IsManagedByOLMV0() {
 		// We are not managed by OLM -> no OperatorCondition
 		return oc, nil
 	}

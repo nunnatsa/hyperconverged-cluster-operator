@@ -8,13 +8,13 @@ import (
 
 	"github.com/go-logr/logr"
 	openshiftconfigv1 "github.com/openshift/api/config/v1"
-	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/discovery"
 	"k8s.io/utils/net"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -27,7 +27,7 @@ type ClusterInfo interface {
 	IsOpenshift() bool
 	IsRunningLocally() bool
 	GetBaseDomain() string
-	IsManagedByOLM() bool
+	IsManagedByOLMV0() bool
 	IsConsolePluginImageProvided() bool
 	IsMonitoringAvailable() bool
 	IsDeschedulerAvailable() bool
@@ -38,12 +38,12 @@ type ClusterInfo interface {
 	RefreshAPIServerCR(ctx context.Context, c client.Client) error
 	GetPod() *corev1.Pod
 	GetDeployment() *appsv1.Deployment
-	GetCSV() *csvv1alpha1.ClusterServiceVersion
+	GetManageObject() runtime.Object
 }
 
 type ClusterInfoImp struct {
 	runningInOpenshift         bool
-	managedByOLM               bool
+	managedByOLMV0             bool
 	runningLocally             bool
 	consolePluginImageProvided bool
 	monitoringAvailable        bool
@@ -54,6 +54,9 @@ type ClusterInfoImp struct {
 	ownResources               *OwnResources
 	logger                     logr.Logger
 }
+
+// make sure ClusterInfoImp implements ClusterInfo
+var _ ClusterInfo = &ClusterInfoImp{}
 
 var clusterInfo ClusterInfo
 
@@ -74,7 +77,7 @@ func (c *ClusterInfoImp) Init(ctx context.Context, cl client.Client, logger logr
 	}
 
 	// We assume that this Operator is managed by OLM when this variable is present.
-	_, c.managedByOLM = os.LookupEnv(OperatorConditionNameEnvVar)
+	_, c.managedByOLMV0 = os.LookupEnv(OperatorConditionNameEnvVar)
 
 	if c.runningInOpenshift {
 		err = c.initOpenshift(ctx, cl)
@@ -146,8 +149,8 @@ func (c *ClusterInfoImp) initOpenshift(ctx context.Context, cl client.Client) er
 	return nil
 }
 
-func (c *ClusterInfoImp) IsManagedByOLM() bool {
-	return c.managedByOLM
+func (c *ClusterInfoImp) IsManagedByOLMV0() bool {
+	return c.managedByOLMV0
 }
 
 func (c *ClusterInfoImp) IsOpenshift() bool {
@@ -194,8 +197,8 @@ func (c *ClusterInfoImp) GetDeployment() *appsv1.Deployment {
 	return c.ownResources.GetDeployment()
 }
 
-func (c *ClusterInfoImp) GetCSV() *csvv1alpha1.ClusterServiceVersion {
-	return c.ownResources.GetCSV()
+func (c *ClusterInfoImp) GetManageObject() runtime.Object {
+	return c.ownResources.GetManageObject()
 }
 
 func getClusterBaseDomain(ctx context.Context, cl client.Client) (string, error) {

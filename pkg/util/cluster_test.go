@@ -159,7 +159,7 @@ var _ = Describe("test clusterInfo", func() {
 		Expect(GetClusterInfo().Init(context.TODO(), cl, logger)).To(Succeed())
 
 		Expect(GetClusterInfo().IsOpenshift()).To(BeFalse(), "should return false for IsOpenshift()")
-		Expect(GetClusterInfo().IsManagedByOLM()).To(BeFalse(), "should return false for IsManagedByOLM()")
+		Expect(GetClusterInfo().IsManagedByOLMV0()).To(BeFalse(), "should return false for IsManagedByOLMV0()")
 	})
 
 	It("check Init on kubernetes, with OLM", func() {
@@ -170,7 +170,7 @@ var _ = Describe("test clusterInfo", func() {
 		Expect(GetClusterInfo().Init(context.TODO(), cl, logger)).To(Succeed())
 
 		Expect(GetClusterInfo().IsOpenshift()).To(BeFalse(), "should return false for IsOpenshift()")
-		Expect(GetClusterInfo().IsManagedByOLM()).To(BeTrue(), "should return true for IsManagedByOLM()")
+		Expect(GetClusterInfo().IsManagedByOLMV0()).To(BeTrue(), "should return true for IsManagedByOLMV0()")
 	})
 
 	It("check Init on kubernetes, with KubeDescheduler CRD without any CR for it", func() {
@@ -360,7 +360,7 @@ var _ = Describe("test clusterInfo", func() {
 		Expect(GetClusterInfo().Init(context.TODO(), cl, logger)).To(Succeed())
 
 		Expect(GetClusterInfo().IsOpenshift()).To(BeTrue(), "should return true for IsOpenshift()")
-		Expect(GetClusterInfo().IsManagedByOLM()).To(BeTrue(), "should return true for IsManagedByOLM()")
+		Expect(GetClusterInfo().IsManagedByOLMV0()).To(BeTrue(), "should return true for IsManagedByOLMV0()")
 
 		By("Check clusterInfo additional fields (for openshift)", func() {
 			Expect(GetClusterInfo().GetBaseDomain()).To(Equal(baseDomain), "should return expected base domain")
@@ -378,7 +378,7 @@ var _ = Describe("test clusterInfo", func() {
 		Expect(GetClusterInfo().Init(context.TODO(), cl, logger)).To(Succeed())
 
 		Expect(GetClusterInfo().IsOpenshift()).To(BeTrue(), "should return true for IsOpenshift()")
-		Expect(GetClusterInfo().IsManagedByOLM()).To(BeFalse(), "should return false for IsManagedByOLM()")
+		Expect(GetClusterInfo().IsManagedByOLMV0()).To(BeFalse(), "should return false for IsManagedByOLMV0()")
 	})
 
 	It("check init on OpenShift, with single-stack IPv6 network", func() {
@@ -455,7 +455,7 @@ var _ = Describe("test clusterInfo", func() {
 			Expect(GetClusterInfo().Init(context.TODO(), cl, logger)).To(Succeed())
 
 			Expect(GetClusterInfo().IsOpenshift()).To(BeTrue(), "should return true for IsOpenshift()")
-			Expect(GetClusterInfo().IsManagedByOLM()).To(BeTrue(), "should return true for IsManagedByOLM()")
+			Expect(GetClusterInfo().IsManagedByOLMV0()).To(BeTrue(), "should return true for IsManagedByOLMV0()")
 		},
 		Entry(
 			"HighlyAvailable ControlPlane and Infrastructure",
@@ -694,7 +694,7 @@ var _ = Describe("test clusterInfo", func() {
 			Expect(GetClusterInfo().Init(context.TODO(), cl, logger)).To(Succeed())
 
 			Expect(GetClusterInfo().IsOpenshift()).To(BeTrue(), "should return true for IsOpenshift()")
-			Expect(GetClusterInfo().IsManagedByOLM()).To(BeTrue(), "should return true for IsManagedByOLM()")
+			Expect(GetClusterInfo().IsManagedByOLMV0()).To(BeTrue(), "should return true for IsManagedByOLMV0()")
 
 			Expect(GetClusterInfo().GetTLSSecurityProfile(nil)).To(Equal(initialTLSSecurityProfile), "should return the initial value")
 
@@ -724,7 +724,7 @@ var _ = Describe("test clusterInfo", func() {
 			Expect(GetClusterInfo().Init(context.TODO(), cl, logger)).To(Succeed())
 
 			Expect(GetClusterInfo().IsOpenshift()).To(BeTrue(), "should return true for IsOpenshift()")
-			Expect(GetClusterInfo().IsManagedByOLM()).To(BeTrue(), "should return true for IsManagedByOLM()")
+			Expect(GetClusterInfo().IsManagedByOLMV0()).To(BeTrue(), "should return true for IsManagedByOLMV0()")
 			Expect(GetClusterInfo().IsDeschedulerAvailable()).To(BeFalse(), "should initially return false for IsDeschedulerAvailable()")
 			Expect(GetClusterInfo().IsDeschedulerCRDDeployed(context.TODO(), cl)).To(BeFalse(), "should initially return false for IsDeschedulerCRDDeployed(...)")
 

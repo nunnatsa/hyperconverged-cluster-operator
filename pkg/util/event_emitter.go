@@ -3,7 +3,6 @@ package util
 import (
 	"reflect"
 
-	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
@@ -18,23 +17,23 @@ func GetEventEmitter() EventEmitter {
 }
 
 type EventEmitter interface {
-	Init(pod *corev1.Pod, csv *csvv1alpha1.ClusterServiceVersion, recorder record.EventRecorder)
+	Init(pod *corev1.Pod, csv runtime.Object, recorder record.EventRecorder)
 	EmitEvent(object runtime.Object, eventType, reason, msg string)
 }
 
 type eventEmitter struct {
-	recorder record.EventRecorder
-	pod      *corev1.Pod
-	csv      *csvv1alpha1.ClusterServiceVersion
+	recorder     record.EventRecorder
+	pod          *corev1.Pod
+	manageObject runtime.Object
 }
 
-func (ee *eventEmitter) Init(pod *corev1.Pod, csv *csvv1alpha1.ClusterServiceVersion, recorder record.EventRecorder) {
-	ee.recorder = recorder //mgr.GetEventRecorderFor(HyperConvergedName)
+func (ee *eventEmitter) Init(pod *corev1.Pod, manageObject runtime.Object, recorder record.EventRecorder) {
+	ee.recorder = recorder
 	ee.pod = pod
-	ee.csv = csv
+	ee.manageObject = manageObject
 }
 
-func (ee eventEmitter) EmitEvent(object runtime.Object, eventType, reason, msg string) {
+func (ee *eventEmitter) EmitEvent(object runtime.Object, eventType, reason, msg string) {
 	if ee.pod != nil {
 		ee.recorder.Event(ee.pod, eventType, reason, msg)
 	}
@@ -43,8 +42,8 @@ func (ee eventEmitter) EmitEvent(object runtime.Object, eventType, reason, msg s
 		ee.recorder.Event(object, eventType, reason, msg)
 	}
 
-	if ee.csv != nil {
-		ee.recorder.Event(ee.csv, eventType, reason, msg)
+	if ee.manageObject != nil {
+		ee.recorder.Event(ee.manageObject, eventType, reason, msg)
 	}
 }
 

@@ -25,8 +25,8 @@ var _ = Describe("", func() {
 		})
 
 		ee := eventEmitter{
-			pod: nil,
-			csv: nil,
+			pod:          nil,
+			manageObject: nil,
 		}
 
 		It("should not update pod if the pod not found", func() {
@@ -37,7 +37,7 @@ var _ = Describe("", func() {
 
 			ee.Init(nil, nil, recorder)
 			Expect(ee.pod).To(BeNil())
-			Expect(ee.csv).To(BeNil())
+			Expect(ee.manageObject).To(BeNil())
 
 			By("should emit event for all three resources", func() {
 				// we'll use the replica set as object, because we just need one. Originally we would use the HyperConverged
@@ -117,7 +117,7 @@ var _ = Describe("", func() {
 			ee.Init(pod, csv, recorder)
 
 			Expect(ee.pod).ToNot(BeNil())
-			Expect(ee.csv).ToNot(BeNil())
+			Expect(ee.manageObject).ToNot(BeNil())
 
 			By("should emit event for all three resources", func() {
 				// we'll use the replica set as object, because we just need one. Originally we would use the HyperConverged

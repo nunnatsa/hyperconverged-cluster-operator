@@ -47,6 +47,7 @@ import (
 	hcov1beta1 "github.com/kubevirt/hyperconverged-cluster-operator/api/v1beta1"
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/common"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/components"
+	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 )
 
 // Name and Namespace of our primary resource
@@ -295,6 +296,9 @@ var ( // own resources
 // ClusterInfoMock mocks regular Openshift
 type ClusterInfoMock struct{}
 
+// make sure ClusterInfoMock implements hcoutil.Clus`terInfo
+var _ hcoutil.ClusterInfo = &ClusterInfoMock{}
+
 func (ClusterInfoMock) Init(_ context.Context, _ client.Client, _ logr.Logger) error {
 	return nil
 }
@@ -304,7 +308,7 @@ func (ClusterInfoMock) IsOpenshift() bool {
 func (ClusterInfoMock) IsRunningLocally() bool {
 	return false
 }
-func (ClusterInfoMock) IsManagedByOLM() bool {
+func (ClusterInfoMock) IsManagedByOLMV0() bool {
 	return true
 }
 func (ClusterInfoMock) GetBaseDomain() string {
@@ -336,9 +340,10 @@ func (c ClusterInfoMock) GetDeployment() *appsv1.Deployment {
 	return deployment
 }
 
-func (c ClusterInfoMock) GetCSV() *csvv1alpha1.ClusterServiceVersion {
+func (c ClusterInfoMock) GetManageObject() runtime.Object {
 	return csv
 }
+
 func (ClusterInfoMock) GetTLSSecurityProfile(_ *openshiftconfigv1.TLSSecurityProfile) *openshiftconfigv1.TLSSecurityProfile {
 	return &openshiftconfigv1.TLSSecurityProfile{
 		Type:         openshiftconfigv1.TLSProfileIntermediateType,

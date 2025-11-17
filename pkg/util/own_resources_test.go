@@ -8,9 +8,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
+	operatorcontv1 "github.com/operator-framework/operator-controller/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -24,37 +26,41 @@ var _ = Describe("Test OwnResources", func() {
 	)
 
 	var (
-		origGetOperatorNamespace = GetOperatorNamespace
-		origPodName              = os.Getenv(PodNameEnvVar)
-		origGetClusterInfo       = GetClusterInfo
+		testScheme *runtime.Scheme
 	)
 
 	BeforeEach(func() {
+		var (
+			origNamespace      = os.Getenv(OperatorNamespaceEnv)
+			origPodName        = os.Getenv(PodNameEnvVar)
+			origGetClusterInfo = GetClusterInfo
+		)
 		GetOperatorNamespace = func(_ logr.Logger) (string, error) {
 			return namespace, nil
 		}
 
-		os.Setenv(PodNameEnvVar, podName)
+		Expect(os.Setenv(OperatorNamespaceEnv, namespace)).To(Succeed())
+		Expect(os.Setenv(PodNameEnvVar, podName)).To(Succeed())
+		testScheme = scheme.Scheme
+		Expect(csvv1alpha1.AddToScheme(testScheme)).To(Succeed())
+		Expect(operatorcontv1.AddToScheme(testScheme)).To(Succeed())
 
+		DeferCleanup(func() {
+			Expect(os.Setenv(OperatorNamespaceEnv, origNamespace)).To(Succeed())
+			Expect(os.Setenv(PodNameEnvVar, origPodName)).To(Succeed())
+			GetClusterInfo = origGetClusterInfo
+		})
+	})
+
+	It("should update pod and csv if they are found", func(ctx context.Context) {
 		GetClusterInfo = func() ClusterInfo {
 			return &ClusterInfoImp{
 				runningInOpenshift: true,
-				managedByOLM:       true,
+				managedByOLMV0:     true,
 				runningLocally:     false,
 			}
 		}
-	})
 
-	AfterEach(func() {
-		GetOperatorNamespace = origGetOperatorNamespace
-		os.Setenv(PodNameEnvVar, origPodName)
-		GetClusterInfo = origGetClusterInfo
-	})
-
-	testScheme := scheme.Scheme
-	_ = csvv1alpha1.AddToScheme(testScheme)
-
-	It("should update pod and csv if they are found", func() {
 		csv := &csvv1alpha1.ClusterServiceVersion{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      rsName,
@@ -121,10 +127,94 @@ var _ = Describe("Test OwnResources", func() {
 			WithStatusSubresource(csv, dep, rs, pod).
 			Build()
 
-		or := findOwnResources(context.Background(), cl, logger)
-		Expect(*or.GetPod()).To(Equal(*pod))
-		Expect(*or.GetDeployment()).To(Equal(*dep))
-		Expect(*or.GetCSV()).To(Equal(*csv))
+		or := findOwnResources(ctx, cl, logger)
+		Expect(or.GetPod()).To(HaveValue(Equal(*pod)))
+		Expect(or.GetDeployment()).To(HaveValue(Equal(*dep)))
+		Expect(or.GetManageObject()).To(HaveValue(Equal(*csv)))
+	})
+
+	It("should update pod and clusterExtension if they are found", func(ctx context.Context) {
+		GetClusterInfo = func() ClusterInfo {
+			return &ClusterInfoImp{
+				runningInOpenshift: true,
+				managedByOLMV0:     false,
+				runningLocally:     false,
+			}
+		}
+
+		clusterExt := &operatorcontv1.ClusterExtension{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: rsName,
+			},
+		}
+
+		dep := &appsv1.Deployment{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      rsName,
+				Namespace: namespace,
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion: "olm.operatorframework.io/v1",
+						Kind:       operatorcontv1.ClusterExtensionKind,
+						Name:       rsName,
+						Controller: ptr.To(true),
+					},
+				},
+			},
+		}
+
+		rs := &appsv1.ReplicaSet{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ReplicaSet",
+				APIVersion: "apps/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      rsName,
+				Namespace: namespace,
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion: "apps/v1",
+						Kind:       "Deployment",
+						Name:       rsName,
+						Controller: ptr.To(true),
+					},
+				},
+			},
+		}
+
+		pod := &corev1.Pod{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Pod",
+				APIVersion: "v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      podName,
+				Namespace: namespace,
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion: "apps/v1",
+						Kind:       "ReplicaSet",
+						Name:       rsName,
+						Controller: ptr.To(true),
+					},
+				},
+			},
+		}
+
+		cl := fake.NewClientBuilder().
+			WithScheme(testScheme).
+			WithObjects(clusterExt, dep, rs, pod).
+			WithStatusSubresource(clusterExt, dep, rs, pod).
+			Build()
+
+		or := findOwnResources(ctx, cl, logger)
+		Expect(or.GetPod()).To(HaveValue(Equal(*pod)))
+		Expect(or.GetDeployment()).To(HaveValue(Equal(*dep)))
+		Expect(or.GetManageObject()).To(Equal(clusterExt))
+		//Expect(or.manageObj).ToNot(BeNil())
+		//ce, ok := or.manageObj.(*operatorcontv1.ClusterExtension)
+		//Expect(ok).To(BeTrue())
+		//Expect(ce).To(Equal(clusterExt))
 	})
 
 })

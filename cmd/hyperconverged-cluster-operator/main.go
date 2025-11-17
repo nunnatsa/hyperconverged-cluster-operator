@@ -17,6 +17,7 @@ import (
 	deschedulerv1 "github.com/openshift/cluster-kube-descheduler-operator/pkg/apis/descheduler/v1"
 	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	operatorsapiv2 "github.com/operator-framework/api/pkg/operators/v2"
+	operatorcontv1 "github.com/operator-framework/operator-controller/api/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/rhobs/operator-observability-toolkit/pkg/operatormetrics"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
@@ -108,6 +109,7 @@ var (
 		deschedulerv1.AddToScheme,
 		netattdefv1.AddToScheme,
 		networkingv1.AddToScheme,
+		operatorcontv1.AddToScheme,
 	}
 )
 
@@ -154,7 +156,7 @@ func main() {
 	logger.Info("Registering Components.")
 
 	eventEmitter := hcoutil.GetEventEmitter()
-	eventEmitter.Init(ci.GetPod(), ci.GetCSV(), mgr.GetEventRecorderFor(hcoutil.HyperConvergedName))
+	eventEmitter.Init(ci.GetPod(), ci.GetManageObject(), mgr.GetEventRecorderFor(hcoutil.HyperConvergedName))
 
 	err = mgr.AddHealthzCheck("ping", healthz.Ping)
 	cmdHelper.ExitOnError(err, "unable to add health check")

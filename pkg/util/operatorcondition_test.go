@@ -25,15 +25,15 @@ var _ = Describe("OperatorCondition", func() {
 		Expect(oc.Set(ctx, metav1.ConditionTrue, "Reason", "message")).To(Succeed())
 	},
 		Entry("should no-op when not managed by OLM", &ClusterInfoImp{
-			managedByOLM:   false,
+			managedByOLMV0: false,
 			runningLocally: false,
 		}),
 		Entry("should no-op when running locally", &ClusterInfoImp{
-			managedByOLM:   true,
+			managedByOLMV0: true,
 			runningLocally: true,
 		}),
 		Entry("should no-op when running locally and not managed by OLM", &ClusterInfoImp{
-			managedByOLM:   false,
+			managedByOLMV0: false,
 			runningLocally: true,
 		}),
 	)
@@ -56,7 +56,7 @@ var _ = Describe("OperatorCondition", func() {
 		}
 
 		oc, err := NewOperatorCondition(&ClusterInfoImp{
-			managedByOLM:   true,
+			managedByOLMV0: true,
 			runningLocally: false,
 		}, cl, "testCondition")
 		Expect(err).ToNot(HaveOccurred())

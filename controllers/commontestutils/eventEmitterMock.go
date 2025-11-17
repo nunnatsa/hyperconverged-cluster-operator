@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"sync"
 
-	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/go-logr/logr"
@@ -39,7 +38,7 @@ func (eem *EventEmitterMock) Reset() {
 	eem.storedEvents = make([]MockEvent, 0)
 }
 
-func (EventEmitterMock) Init(_ *corev1.Pod, _ *csvv1alpha1.ClusterServiceVersion, _ record.EventRecorder) {
+func (*EventEmitterMock) Init(_ *corev1.Pod, _ runtime.Object, _ record.EventRecorder) {
 	/* not implemented; mock only */
 }
 
@@ -56,11 +55,11 @@ func (eem *EventEmitterMock) EmitEvent(_ runtime.Object, eventType, reason, msg 
 	eem.storedEvents = append(eem.storedEvents, event)
 }
 
-func (EventEmitterMock) UpdateClient(_ context.Context, _ client.Reader, _ logr.Logger) {
+func (*EventEmitterMock) UpdateClient(_ context.Context, _ client.Reader, _ logr.Logger) {
 	/* not implemented; mock only */
 }
 
-func (eem EventEmitterMock) CheckEvents(expectedEvents []MockEvent) bool {
+func (eem *EventEmitterMock) CheckEvents(expectedEvents []MockEvent) bool {
 	eem.lock.Lock()
 	defer eem.lock.Unlock()
 
@@ -73,7 +72,7 @@ func (eem EventEmitterMock) CheckEvents(expectedEvents []MockEvent) bool {
 	return true
 }
 
-func (eem EventEmitterMock) CheckNoEventEmitted() bool {
+func (eem *EventEmitterMock) CheckNoEventEmitted() bool {
 	eem.lock.Lock()
 	defer eem.lock.Unlock()
 

@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"time"
 
+	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"golang.org/x/sync/errgroup"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -77,8 +78,11 @@ func NewOperandHandler(client client.Client, scheme *runtime.Scheme, ci hcoutil.
 		operandList = append(operandList, operands.NewServiceHandler(client, scheme, handlers.NewKvUIProxySvc))
 	}
 
-	if ci.IsManagedByOLM() {
-		operandList = append(operandList, handlers.NewCsvHandler(client, ci))
+	if ci.IsManagedByOLMV0() {
+		obj := ci.GetManageObject()
+		if csv, ok := obj.(*csvv1alpha1.ClusterServiceVersion); ok && csv != nil {
+			operandList = append(operandList, handlers.NewCsvHandler(client, csv))
+		}
 	}
 
 	return &OperandHandler{

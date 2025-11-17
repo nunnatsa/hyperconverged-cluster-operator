@@ -74,8 +74,13 @@ var _ = Describe("CSV Operand", func() {
 })
 
 func ensure(req *common.HcoRequest, hco *hcov1beta1.HyperConverged, ci hcoutil.ClusterInfo) *csvv1alpha1.ClusterServiceVersion {
-	cl := commontestutils.InitClient([]client.Object{hco, ci.GetCSV()})
-	handler := NewCsvHandler(cl, ci)
+	GinkgoHelper()
+
+	csv, ok := ci.GetManageObject().(*csvv1alpha1.ClusterServiceVersion)
+	Expect(ok).To(BeTrue())
+	Expect(csv).ToNot(BeNil())
+	cl := commontestutils.InitClient([]client.Object{hco, csv})
+	handler := NewCsvHandler(cl, csv)
 	res := handler.Ensure(req)
 	Expect(res.UpgradeDone).To(BeTrue())
 	Expect(res.Err).ToNot(HaveOccurred())
@@ -83,7 +88,7 @@ func ensure(req *common.HcoRequest, hco *hcov1beta1.HyperConverged, ci hcoutil.C
 	foundResource := &csvv1alpha1.ClusterServiceVersion{}
 	Expect(
 		cl.Get(context.TODO(),
-			types.NamespacedName{Name: ci.GetCSV().Name, Namespace: ci.GetCSV().Namespace},
+			types.NamespacedName{Name: csv.Name, Namespace: csv.Namespace},
 			foundResource),
 	).To(Succeed())
 	return foundResource

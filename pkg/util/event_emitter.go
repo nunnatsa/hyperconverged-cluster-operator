@@ -17,7 +17,7 @@ func GetEventEmitter() EventEmitter {
 }
 
 type EventEmitter interface {
-	Init(pod *corev1.Pod, csv runtime.Object, recorder record.EventRecorder)
+	Init(pod *corev1.Pod, manageObject runtime.Object, recorder record.EventRecorder)
 	EmitEvent(object runtime.Object, eventType, reason, msg string)
 }
 

@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	promv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
-	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/rest"
@@ -18,6 +17,7 @@ import (
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/commontestutils"
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/observability"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/monitoring/observability/rules"
+	fakeownreferences "github.com/kubevirt/hyperconverged-cluster-operator/pkg/ownresources/fake"
 )
 
 const namespace = "observability_test"
@@ -42,7 +42,7 @@ var _ = Describe("Reconcile Alerts", func() {
 		mgr, err := commontestutils.NewManagerMock(&rest.Config{}, manager.Options{}, cl, logger)
 		Expect(err).ToNot(HaveOccurred())
 
-		reconciler = observability.NewReconciler(mgr, namespace, &appsv1.Deployment{})
+		reconciler = observability.NewReconciler(mgr, namespace, fakeownreferences.GetFakeDeploymentRef())
 	})
 
 	It("Should create new PrometheusRules", func() {

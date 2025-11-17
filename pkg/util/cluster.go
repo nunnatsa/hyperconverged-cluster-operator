@@ -8,13 +8,10 @@ import (
 
 	"github.com/go-logr/logr"
 	openshiftconfigv1 "github.com/openshift/api/config/v1"
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/discovery"
 	"k8s.io/utils/net"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,9 +33,6 @@ type ClusterInfo interface {
 	IsSingleStackIPv6() bool
 	GetTLSSecurityProfile(hcoTLSSecurityProfile *openshiftconfigv1.TLSSecurityProfile) *openshiftconfigv1.TLSSecurityProfile
 	RefreshAPIServerCR(ctx context.Context, c client.Client) error
-	GetPod() *corev1.Pod
-	GetDeployment() *appsv1.Deployment
-	GetManageObject() runtime.Object
 }
 
 type ClusterInfoImp struct {
@@ -51,7 +45,6 @@ type ClusterInfoImp struct {
 	nadAvailable               bool
 	singlestackipv6            bool
 	baseDomain                 string
-	ownResources               *OwnResources
 	logger                     logr.Logger
 }
 
@@ -108,7 +101,6 @@ func (c *ClusterInfoImp) Init(ctx context.Context, cl client.Client, logger logr
 		return err
 	}
 
-	c.ownResources = findOwnResources(ctx, cl, c.logger)
 	return nil
 }
 
@@ -187,18 +179,6 @@ func (c *ClusterInfoImp) IsSingleStackIPv6() bool {
 
 func (c *ClusterInfoImp) GetBaseDomain() string {
 	return c.baseDomain
-}
-
-func (c *ClusterInfoImp) GetPod() *corev1.Pod {
-	return c.ownResources.GetPod()
-}
-
-func (c *ClusterInfoImp) GetDeployment() *appsv1.Deployment {
-	return c.ownResources.GetDeployment()
-}
-
-func (c *ClusterInfoImp) GetManageObject() runtime.Object {
-	return c.ownResources.GetManageObject()
 }
 
 func getClusterBaseDomain(ctx context.Context, cl client.Client) (string, error) {

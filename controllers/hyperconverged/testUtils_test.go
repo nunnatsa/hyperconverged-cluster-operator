@@ -40,6 +40,7 @@ import (
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/handlers"
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/operandhandler"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/components"
+	ownresources "github.com/kubevirt/hyperconverged-cluster-operator/pkg/ownresources"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	"github.com/kubevirt/hyperconverged-cluster-operator/version"
 )
@@ -323,7 +324,7 @@ func getBasicDeployment() *BasicExpected {
 	}
 	res.hcoCRD = hcoCrd
 
-	manageObject := hcoutil.GetClusterInfo().GetManageObject()
+	manageObject := ownresources.GetManageObject()
 
 	switch obj := manageObject.(type) {
 	case *csvv1alpha1.ClusterServiceVersion:

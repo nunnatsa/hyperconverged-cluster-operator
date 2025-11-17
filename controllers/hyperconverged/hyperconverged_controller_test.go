@@ -17,7 +17,6 @@ import (
 	imagev1 "github.com/openshift/api/image/v1"
 	conditionsv1 "github.com/openshift/custom-resource-status/conditions/v1"
 	objectreferencesv1 "github.com/openshift/custom-resource-status/objectreferences/v1"
-	csvv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -45,6 +44,8 @@ import (
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/handlers"
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/reqresolver"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/monitoring/hyperconverged/metrics"
+	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/ownresources"
+	fakeownreferences "github.com/kubevirt/hyperconverged-cluster-operator/pkg/ownresources/fake"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	"github.com/kubevirt/hyperconverged-cluster-operator/version"
 )
@@ -68,6 +69,7 @@ var _ = Describe("HyperconvergedController", func() {
 		hcoutil.GetClusterInfo = func() hcoutil.ClusterInfo {
 			return commontestutils.ClusterInfoMock{}
 		}
+		fakeownreferences.OLMV0OwnerReferenceMock()
 
 		Expect(os.Setenv(hcoutil.OperatorConditionNameEnvVar, "OPERATOR_CONDITION")).To(Succeed())
 		Expect(os.Setenv("VIRTIOWIN_CONTAINER", commontestutils.VirtioWinImage)).To(Succeed())
@@ -78,6 +80,7 @@ var _ = Describe("HyperconvergedController", func() {
 
 		DeferCleanup(func() {
 			hcoutil.GetClusterInfo = getClusterInfo
+			fakeownreferences.ResetOwnReference()
 
 			Expect(os.Setenv(hcoutil.OperatorConditionNameEnvVar, origOperatorCondVarName)).To(Succeed())
 			Expect(os.Setenv("VIRTIOWIN_CONTAINER", origVirtIOWinContainer)).To(Succeed())
@@ -154,7 +157,7 @@ var _ = Describe("HyperconvergedController", func() {
 				}
 
 				ci := hcoutil.GetClusterInfo()
-				cl := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ci.GetManageObject().(client.Object)})
+				cl := commontestutils.InitClient([]client.Object{hcoNamespace, hco, ownresources.GetManageObject().(client.Object)})
 				monitoringReconciler := alerts.NewMonitoringReconciler(ci, cl, commontestutils.NewEventEmitterMock(), commontestutils.GetScheme())
 
 				r := initReconciler(cl, nil)
@@ -1057,9 +1060,7 @@ var _ = Describe("HyperconvergedController", func() {
 				expected := getBasicDeployment()
 				Expect(expected.hco.Spec.TLSSecurityProfile).To(BeNil())
 
-				var ok bool
-				expected.csv, ok = commontestutils.ClusterInfoMock{}.GetManageObject().(*csvv1alpha1.ClusterServiceVersion)
-				Expect(ok).To(BeTrue())
+				expected.csv = fakeownreferences.GetCSV()
 
 				resources := expected.toArray()
 				resources = append(resources, clusterVersion, infrastructure, ingress, apiServer, dns, ipv4network)

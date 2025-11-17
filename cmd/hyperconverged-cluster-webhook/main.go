@@ -42,6 +42,7 @@ import (
 	whapiservercontrollers "github.com/kubevirt/hyperconverged-cluster-operator/controllers/webhooks/apiserver-controller"
 	bearertokencontroller "github.com/kubevirt/hyperconverged-cluster-operator/controllers/webhooks/bearer-token-controller"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/authorization"
+	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/ownresources"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/webhooks"
 )
@@ -105,7 +106,7 @@ func main() {
 
 	ci := hcoutil.GetClusterInfo()
 	ctx := context.Background()
-	err = ci.Init(ctx, apiClient, logger)
+	err = cmdcommon.ClusterInitializations(ctx, apiClient, logger)
 	cmdHelper.ExitOnError(err, "Cannot detect cluster type")
 
 	// Create a new Cmd to provide shared dependencies and start components
@@ -146,7 +147,7 @@ func main() {
 	ctx = signals.SetupSignalHandler()
 
 	eventEmitter := hcoutil.GetEventEmitter()
-	eventEmitter.Init(ci.GetPod(), ci.GetManageObject(), mgr.GetEventRecorderFor(hcoutil.HyperConvergedName))
+	eventEmitter.Init(ownresources.GetPod(), ownresources.GetManageObject(), mgr.GetEventRecorderFor(hcoutil.HyperConvergedName))
 
 	err = mgr.AddHealthzCheck("ping", healthz.Ping)
 	cmdHelper.ExitOnError(err, "unable to add health check")

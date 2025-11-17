@@ -21,6 +21,7 @@ import (
 	waspagent "github.com/kubevirt/hyperconverged-cluster-operator/controllers/handlers/wasp-agent"
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/operands"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/monitoring/hyperconverged/metrics"
+	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/ownresources"
 	hcoutil "github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 )
 
@@ -79,7 +80,7 @@ func NewOperandHandler(client client.Client, scheme *runtime.Scheme, ci hcoutil.
 	}
 
 	if ci.IsManagedByOLMV0() {
-		obj := ci.GetManageObject()
+		obj := ownresources.GetManageObject()
 		if csv, ok := obj.(*csvv1alpha1.ClusterServiceVersion); ok && csv != nil {
 			operandList = append(operandList, handlers.NewCsvHandler(client, csv))
 		}

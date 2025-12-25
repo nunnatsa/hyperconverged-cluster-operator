@@ -1,9 +1,13 @@
 Perses assets shipped by HCO are embedded into the operator image and reconciled by a dedicated Perses controller.
 
 Layout
-assets/dashboards/perses/
-├── dashboards/   ← PersesDashboard YAMLs managed by HCO
-└── datasources/  ← PersesDatasource YAMLs managed by HCO
+```
+controllers/
+├── perses/
+    ├── resources/
+        ├── dashboards/   ← PersesDashboard YAMLs managed by HCO
+        └── datasources/  ← PersesDatasource YAMLs managed by HCO
+```
 
 Dashboards allowlist
 - HCO only reconciles dashboards whose names are in an internal allowlist controlled by HCO.

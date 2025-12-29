@@ -19,6 +19,7 @@ import (
 	operatorsapiv2 "github.com/operator-framework/api/pkg/operators/v2"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/rhobs/operator-observability-toolkit/pkg/operatormetrics"
+	persesv1alpha1 "github.com/rhobs/perses-operator/api/v1alpha1"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	coordinationv1 "k8s.io/api/coordination/v1"
@@ -66,6 +67,7 @@ import (
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/ingresscluster"
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/nodes"
 	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/observability"
+	"github.com/kubevirt/hyperconverged-cluster-operator/controllers/perses"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/authorization"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/monitoring/hyperconverged/collectors"
 	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/monitoring/hyperconverged/metrics"
@@ -112,6 +114,7 @@ var (
 		deschedulerv1.AddToScheme,
 		netattdefv1.AddToScheme,
 		networkingv1.AddToScheme,
+		persesv1alpha1.AddToScheme,
 	}
 )
 
@@ -230,6 +233,14 @@ func main() {
 		if err = observability.SetupWithManager(mgr, ownresources.GetDeploymentRef()); err != nil {
 			logger.Error(err, "unable to create controller", "controller", "Observability")
 			os.Exit(1)
+		}
+
+		if hcoutil.IsPersesAvailable(ctx, apiClient) {
+			// Register Perses controller separately for clear separation of concerns
+			if err = perses.SetupPersesWithManager(mgr, ownresources.GetDeploymentRef()); err != nil {
+				logger.Error(err, "unable to create controller", "controller", "ObservabilityPerses")
+				os.Exit(1)
+			}
 		}
 	}
 
@@ -385,6 +396,13 @@ func getCacheOption(operatorNamespace string, ci hcoutil.ClusterInfo) cache.Opti
 		},
 		&corev1.Secret{}: {
 			Label: labelSelector,
+			Field: namespaceSelector,
+		},
+		// Perses resources (namespaced): restrict cache to operator namespace
+		&persesv1alpha1.PersesDashboard{}: {
+			Field: namespaceSelector,
+		},
+		&persesv1alpha1.PersesDatasource{}: {
 			Field: namespaceSelector,
 		},
 	}

@@ -228,8 +228,8 @@ func isNADExists(ctx context.Context, cl client.Client, logger logr.Logger) bool
 // IsPersesAvailable returns true when the Perses CRDs are installed in the cluster.
 func IsPersesAvailable(ctx context.Context, cl client.Client) bool {
 	logger := logr.FromContextOrDiscard(ctx)
-	return isCRDExists(ctx, cl, "persesdashboards.perses.dev", logger) &&
-		isCRDExists(ctx, cl, "persesdatasources.perses.dev", logger)
+	return isCRDExists(ctx, cl, PersesDashboardCRDName, logger) &&
+		isCRDExists(ctx, cl, PersesDataSourceCRDName, logger)
 }
 
 func isCRDExists(ctx context.Context, cl client.Client, crdName string, logger logr.Logger) bool {

@@ -41,6 +41,8 @@ func initDatasource(namespace string) (*persesv1alpha1.PersesDatasource, error) 
 		return nil, err
 	}
 	ds.Namespace = namespace
+	ds.Labels = hcoutil.GetLabels(hcoutil.HyperConvergedName, hcoutil.AppComponentMonitoring)
+
 	datasourceName = ds.Name
 	return ds, nil
 }
@@ -70,6 +72,8 @@ func parseDashboards(root fs.FS, namespace string, logger logr.Logger) (map[stri
 		}
 		dashboard.Namespace = namespace
 		dashboards[dashboard.Name] = dashboard
+
+		dashboard.Labels = hcoutil.GetLabels(hcoutil.HyperConvergedName, hcoutil.AppComponentMonitoring)
 		return nil
 	})
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/go-logr/logr"
+	"github.com/kubevirt/hyperconverged-cluster-operator/pkg/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	persesv1alpha1 "github.com/rhobs/perses-operator/api/v1alpha1"
@@ -64,8 +65,8 @@ var _ = Describe("Perses controller", func() {
 		It("should apply datasource and dashboard when CRDs are available", func(ctx context.Context) {
 			ctx = logr.NewContext(ctx, GinkgoLogr)
 			tracker := testing.NewObjectTracker(s, serializer.NewCodecFactory(s).UniversalDecoder())
-			Expect(tracker.Add(makeCRD("persesdashboards.perses.dev"))).To(Succeed())
-			Expect(tracker.Add(makeCRD("persesdatasources.perses.dev"))).To(Succeed())
+			Expect(tracker.Add(makeCRD(util.PersesDashboardCRDName))).To(Succeed())
+			Expect(tracker.Add(makeCRD(util.PersesDataSourceCRDName))).To(Succeed())
 
 			cl := fake.NewClientBuilder().
 				WithScheme(s).

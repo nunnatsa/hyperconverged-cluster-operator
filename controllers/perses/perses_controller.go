@@ -179,18 +179,20 @@ func newPersesReconciler(
 	}
 }
 
-func (r *PersesReconciler) ensureOwnerReference(obj client.Object) {
+func (r *PersesReconciler) ensureOwnerReference(obj client.Object) bool {
 	// Avoid duplicate owner refs
 	ors := obj.GetOwnerReferences()
 	for i := range ors {
 		if ors[i].UID == r.owner.UID {
-			return
+			return false
 		}
 	}
 	// Some client.Object implementations may not preserve APIVersion/Kind on OwnerReference
 	// Ensure r.owner has the necessary fields (assumed to be pre-filled by ownresources.GetDeploymentRef()).
 	ors = append(ors, r.owner)
 	obj.SetOwnerReferences(ors)
+
+	return true
 }
 
 func (r *PersesReconciler) reconcileDashboard(ctx context.Context, name string, namespace string, logger logr.Logger) error {
@@ -210,11 +212,28 @@ func (r *PersesReconciler) reconcileDashboard(ctx context.Context, name string, 
 		}
 		return err
 	}
+
+	return r.updateDashboard(ctx, found, db)
+}
+
+func (r *PersesReconciler) updateDashboard(ctx context.Context, found *persesv1alpha1.PersesDashboard, db persesv1alpha1.PersesDashboard) error {
+	modified := false
 	if !reflect.DeepEqual(found.Spec, db.Spec) {
+		modified = true
 		db.Spec.DeepCopyInto(&found.Spec)
-		r.ensureOwnerReference(found)
+	}
+
+	if !hcoutil.CompareLabels(&db, found) {
+		modified = true
+		hcoutil.MergeLabels(&db.ObjectMeta, &found.ObjectMeta)
+	}
+
+	modified = r.ensureOwnerReference(found) || modified
+
+	if modified {
 		return r.Update(ctx, found)
 	}
+
 	return nil
 }
 
@@ -234,11 +253,28 @@ func (r *PersesReconciler) reconcileDataSource(ctx context.Context, name string,
 		}
 		return err
 	}
+
+	return r.updateDataSource(ctx, found)
+}
+
+func (r *PersesReconciler) updateDataSource(ctx context.Context, found *persesv1alpha1.PersesDatasource) error {
+	modified := false
 	if !reflect.DeepEqual(r.cachedDatasource.Spec, found.Spec) {
+		modified = true
 		r.cachedDatasource.Spec.DeepCopyInto(&found.Spec)
-		r.ensureOwnerReference(found)
+	}
+
+	if !hcoutil.CompareLabels(r.cachedDatasource, found) {
+		modified = true
+		hcoutil.MergeLabels(&r.cachedDatasource.ObjectMeta, &found.ObjectMeta)
+	}
+
+	modified = r.ensureOwnerReference(found) || modified
+
+	if modified {
 		return r.Update(ctx, found)
 	}
+
 	return nil
 }
 
